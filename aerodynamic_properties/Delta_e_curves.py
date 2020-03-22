@@ -8,9 +8,7 @@ Created on Mon Mar  9 15:53:20 2020
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-#from sklearn.metrics import r2_score
-from sklearn.preprocessing import PolynomialFeatures
+
 
 #General properties
 K = 273.15
@@ -74,20 +72,17 @@ V_re2 = V_e2*np.sqrt(Ws/W_2)
 F_es = F_e *(Ws/W_2)
 
 #Plots
-#poly_reg = PolynomialFeatures(degree=2)
-#X_poly = poly_reg.fit_transform(V_re2.reshape(-1, 1))
-#poly_reg_2 = PolynomialFeatures(degree=3)
-#X_poly_2 = poly_reg_2.fit_transform(V_re2.reshape(-1, 1))
-#lin_reg_3 = LinearRegression()
-#lin_reg_3.fit(X_poly_2, delta_e.reshape(-1, 1))
-#y_pred = lin_reg_3.predict(X_poly)
-plt.figure(1);
-plt.scatter(V_re2, delta_e);
-#plt.plot(V_re2, y_pred);
+poly_fit_d = np.poly1d(np.polyfit(V_re2, delta_e, 2))
+plt.figure(1)
+xx = np.linspace(np.amin(V_re2), np.amax(V_re2), 100)
+plt.plot(xx, poly_fit_d(xx), c='r',linestyle='-')
+plt.scatter(V_re2, delta_e)
 plt.show()
-#print(r2_score(y, y_pred))
 
-plt.show()
+
+poly_fit_f = np.poly1d(np.polyfit(V_re2, F_es, 2))
 plt.figure(2)
+xx = np.linspace(np.amin(V_re2), np.amax(V_re2), 100)
+plt.plot(xx, poly_fit_f(xx), c='r',linestyle='-')
 plt.scatter(V_re2, F_es)
 plt.show()
