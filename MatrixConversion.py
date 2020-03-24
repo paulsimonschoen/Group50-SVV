@@ -42,16 +42,16 @@ Cndr = 1
 
 
 
-SP  = np.matrix([-2*muc*dc,0,0,0],[0,(Czda-2*muc)*dc,0,0],[0,0,-dc,0],[0,Cmda*dc,0,-2*muc*Kyy**2*dc**2])
-AP  = np.matrix([(Cydb-2*mub)*db,0,0,0],[0,-0.5*db,0,0],[0,0,-2*mub*Kxx**2*db,2*mub*Kxz**2*db**2],[Cndb,0,2*mub*Kxz**2*db,-2*mub*Kzz**2*db**2])
-SQ  = np.matrix([-Cxu,-Cxa,-Cz0,-Cxq],[-Czu,-Cza,Cx0,-(Czq+2muc)],[0,0,0,-1],[-Cmu,-Cma,0,-Cmq])
-AQ  = np.matrix([-CYb,-Cl,-CYp,-(CYr-4*mub)],[0,0,-1,0],[-Clb,0,-Clp,-Clr],[-Cnb,0,-Cnp,Cnr])
-SR  = np.matrix([-Cxde],[-Czde],[0],[Cmde])
-AR  = np.matrix([-Cyda,-Cydr],[0,0],[-Clda,-Cldr],[-Cnda,-Cndr])
-SC  = np.matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
-AC  = np.matrix([1,0,0,0],[0,1,0,0],[0,0,2/db,0],[0,0,0,2/db])
-SD  = np.matrix([0],[0],[0],[0])
-AD  = np.matrix([0,0],[0,0],[0,0],[0,0])
+SP  = np.matrix([[-2*muc*dc,0,0,0],[0,(Czda-2*muc)*dc,0,0],[0,0,-dc,0],[0,Cmda*dc,0,-2*muc*Kyy**2*dc**2]])
+AP  = np.matrix([[(Cydb-2*mub)*db,0,0,0],[0,-0.5*db,0,0],[0,0,-2*mub*Kxx**2*db,2*mub*Kxz**2*db**2],[Cndb,0,2*mub*Kxz**2*db,-2*mub*Kzz**2*db**2]])
+SQ  = np.matrix([[-Cxu,-Cxa,-Cz0,-Cxq],[-Czu,-Cza,Cx0,-(Czq+2muc)],[0,0,0,-1],[-Cmu,-Cma,0,-Cmq]])
+AQ  = np.matrix([[-CYb,-Cl,-CYp,-(CYr-4*mub)],[0,0,-1,0],[-Clb,0,-Clp,-Clr],[-Cnb,0,-Cnp,Cnr]])
+SR  = np.matrix([[-Cxde],[-Czde],[0],[Cmde]])
+AR  = np.matrix([[-Cyda,-Cydr],[0,0],[-Clda,-Cldr],[-Cnda,-Cndr]])
+SC  = np.matrix([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+AC  = np.matrix([[1,0,0,0],[0,1,0,0],[0,0,2/db,0],[0,0,0,2/db]])
+SD  = np.matrix([[0],[0],[0],[0]])
+AD  = np.matrix([[0,0],[0,0],[0,0],[0,0]])
 
 def GetAB(P,Q,R):
     A = P/Q

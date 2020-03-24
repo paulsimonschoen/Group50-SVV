@@ -4,11 +4,11 @@ import scipy as np
 
 
 class State_Space:
-    def __init__(self,A,B,x0):
+    def __init__(self,A,B,C,D,x0):
         self.A = A
         self.B = B
-        self.C = np.identity(4)
-        self.D = np.zeros(1,4)
+        self.C = C
+        self.D = D
         self.x0 = x0
 
     def get_ss(self):
