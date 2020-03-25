@@ -13,6 +13,8 @@ R = 287.05
 gamma = 1.4
 alpha = -0.0065
 c = 2.0569
+MAC = 2.0569
+span = 15.911
 
 def avg(lst):
     return(sum(lst)/len(lst))    
@@ -39,7 +41,7 @@ for i in range(len(data)):
     
     V_EAS.append(V_eas)
 
-def eigv_halftime(a, b, c, l, motion):
+def eigv_halftime_sym(a, b, c, l, motion):
     t = np.linspace(0,l,10000)
     t_half = []
     
@@ -51,19 +53,38 @@ def eigv_halftime(a, b, c, l, motion):
         if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
             t_half.append(t[i]-t[0])
             
-    lmda1 = (log(0.5)/avg(t_half)) * c/V_EAS[motion]
-    print(lmda1)
-    print(avg(t_half))
-    return(lmda1)
+    lmda1 = (log(0.5)/avg(t_half)) * MAC/V_true[motion]
+    return [avg(t_half), lmda1]
 
-def eigv_period(lmda2, motion):
+def eigv_halftime_asym(a, b, c, l, motion):
+    t = np.linspace(0,l,100000)
+    t_half = []
+    
+    y = a + b * np.e**(c * t)
+    
+    for i in range(len(t)):
+        initial_amp = y[0]-a
+        amp = y[i]-a
+        if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
+            t_half.append(t[i]-t[0])
+            
+    lmda1 = (log(0.5)/avg(t_half)) * span/V_true[motion]
+    return [avg(t_half), lmda1]
+
+def eigv_period_sym(lmda2, motion):
     P = (2*pi)/abs(lmda2)
-    mu = ((2*pi)/P) * c/V_EAS[motion]
-    print(P)
-    print(mu)
-    return mu
+    mu = ((2*pi)/P) * MAC/V_true[motion]
+    return [P, mu]
 
-eigv_halftime(0, 15.523439750332592, -0.2321767072020265, 15, 4)
+def eigv_period_asym(lmda2, motion):
+    P = (2*pi)/abs(lmda2)
+    mu = ((2*pi)/P) * span/V_true[motion]
+    return [P, mu]
+
+test = eigenvalue_dutch_roll_roll = eigv_halftime_asym(0, 14.13550719161764, -0.24109718790166357, 12, 4)
+print(test)
+
+
 
 #eigv_period(-1.85898071, 4)
 

@@ -462,26 +462,26 @@ plt.show()
 
 initvalues = [sp1_initV + sp1_initAOA + sp1_initPA + sp1_initPR,
               sp2_initV + sp2_initAOA + sp2_initPA + sp2_initPR,
-              ph_initV  + ph_initAOA  + ph_initPA  + ph_initPR ,
+              ph_initV  + ph_initAOA  + ph_initPA  + ph_initPR,
               spiral_initYA + spiral_initRA + spiral_initRR + spiral_initYR,
               dr_initYA + dr_initRA + dr_initRR + dr_initYR,
               rd_initYA + rd_initRA + rd_initRR + rd_initYR]
 
 df_init = pd.DataFrame(initvalues, columns = ['V_true/Yaw_angle', 'Angle_of_attack/Roll_angle', 'Pitch_angle/Roll_rate', 'Pitch_rate/Yaw_rate'])
 sp1_input = pd.concat([t1, d_e1], axis=1)
-sp2_input = pd.concat([t2, d_e1], axis=1)
-ph_input = pd.concat([t3, d_e1], axis=1)
+sp2_input = pd.concat([t2, d_e2], axis=1)
+ph_input = pd.concat([t3, d_e3], axis=1)
 spiral_input = pd.concat([t4, d_a4, d_r4], axis=1)
 dr_input = pd.concat([t5, d_a5, d_r5], axis=1)
 rd_input = pd.concat([t6, d_a6, d_r6], axis=1)
 
-df_init.to_csv(r'input_data/initial_conditions.txt', header=None, index=None, sep=' ', mode='a')
-sp1_input.to_csv(r'input_data/input_short_period1.txt', header=None, index=None, sep=' ', mode='a')
-sp2_input.to_csv(r'input_data/input_short_period1.txt', header=None, index=None, sep=' ', mode='a')
-ph_input.to_csv(r'input_data/input_phugoid.txt', header=None, index=None, sep=' ', mode='a')
-spiral_input.to_csv(r'input_data/input_spiral.txt', header=None, index=None, sep=' ', mode='a')
-dr_input.to_csv(r'input_data/input_dutch_roll.txt', header=None, index=None, sep=' ', mode='a')
-rd_input.to_csv(r'input_data/input_aperiodic_roll.txt', header=None, index=None, sep=' ', mode='a')
+df_init.to_csv(r'input_data/initial_conditions.txt', header=None, index=None, sep=':', mode='a')
+sp1_input.to_csv(r'input_data/input_short_period1.txt', header=None, index=None, sep=':', mode='a')
+sp2_input.to_csv(r'input_data/input_short_period2.txt', header=None, index=None, sep=':', mode='a')
+ph_input.to_csv(r'input_data/input_phugoid.txt', header=None, index=None, sep=':', mode='a')
+spiral_input.to_csv(r'input_data/input_spiral.txt', header=None, index=None, sep=':', mode='a')
+dr_input.to_csv(r'input_data/input_dutch_roll.txt', header=None, index=None, sep=':', mode='a')
+rd_input.to_csv(r'input_data/input_aperiodic_roll.txt', header=None, index=None, sep=':', mode='a')
 
 '''
 #short period 1
@@ -585,13 +585,14 @@ axs8.scatter(x5,b5, s=0.6, c='red')
 axs8.set_ylabel('Rudder deflection [deg]')
 axs8.tick_params(axis='y', labelcolor='red')
 plt.show()
-
-
-pd.DataFrame.to_excel(short_period, 'short_period.xlsx')
-pd.DataFrame.to_excel(short_period2, 'short_period2.xlsx')
-pd.DataFrame.to_excel(phugoid, 'phugoid.xlsx')
-pd.DataFrame.to_excel(spiral, 'spiral.xlsx')
-pd.DataFrame.to_excel(dutch_roll, 'dutch_roll.xlsx')
-pd.DataFrame.to_excel(roll_damping, 'roll_damping.xlsx')
 '''
+
+#pd.DataFrame.to_excel(short_period, 'short_period.xlsx')
+#pd.DataFrame.to_excel(short_period2, 'short_period2.xlsx')
+#pd.DataFrame.to_excel(phugoid, 'phugoid.xlsx')
+#pd.DataFrame.to_excel(spiral, 'spiral.xlsx')
+#pd.DataFrame.to_excel(dutch_roll, 'dutch_roll.xlsx')
+#pd.DataFrame.to_excel(roll_damping, 'roll_damping.xlsx')
+
+
 print('done')

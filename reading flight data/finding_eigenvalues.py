@@ -13,7 +13,8 @@ T_0 = 288.15
 R = 287.05
 gamma = 1.4
 alpha = -0.0065
-c = 2.0569
+MAC = 2.0569
+span = 15.911
 x = sym.Symbol('x')
 
 data = [['short_period_1', 198, -7.75, 6816.36],
@@ -89,8 +90,8 @@ def ctt(a, c1, c2, lmda1, lmda2, length, amp, data_time, data_rate):
    
     return [p, q]
 
-def eigv_halftime(a, b, c, l, motion):
-    t = np.linspace(0,l,10000)
+def eigv_halftime_sym(a, b, c, l, motion):
+    t = np.linspace(0,l,100000)
     t_half = []
     
     y = a + b * np.e**(c * t)
@@ -101,12 +102,32 @@ def eigv_halftime(a, b, c, l, motion):
         if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
             t_half.append(t[i]-t[0])
             
-    lmda1 = (log(0.5)/avg(t_half)) * c/V_EAS[motion]
+    lmda1 = (log(0.5)/avg(t_half)) * MAC/V_true[motion]
     return [avg(t_half), lmda1]
 
-def eigv_period(lmda2, motion):
+def eigv_halftime_asym(a, b, c, l, motion):
+    t = np.linspace(0,l,100000)
+    t_half = []
+    
+    y = a + b * np.e**(c * t)
+    
+    for i in range(len(t)):
+        initial_amp = y[0]-a
+        amp = y[i]-a
+        if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
+            t_half.append(t[i]-t[0])
+            
+    lmda1 = (log(0.5)/avg(t_half)) * span/V_true[motion]
+    return [avg(t_half), lmda1]
+
+def eigv_period_sym(lmda2, motion):
     P = (2*pi)/abs(lmda2)
-    mu = ((2*pi)/P) * c/V_EAS[motion]
+    mu = ((2*pi)/P) * MAC/V_true[motion]
+    return [P, mu]
+
+def eigv_period_asym(lmda2, motion):
+    P = (2*pi)/abs(lmda2)
+    mu = ((2*pi)/P) * span/V_true[motion]
     return [P, mu]
 
 short_period = pd.read_excel('short_period.xlsx')
@@ -116,28 +137,28 @@ spiral = pd.read_excel('spiral.xlsx')
 dutch_roll = pd.read_excel('dutch_roll.xlsx')
 roll_damping = pd.read_excel('roll_damping.xlsx')
 
-sp1_time = short_period['time']-2092.2
+sp1_time = short_period['time']-short_period['time'].iloc[0]
 sp1_pitch_rate = short_period['bPitchRate']
 
-sp2_time = short_period2['time']-2597.3
+sp2_time = short_period2['time']-short_period2['time'].iloc[0]
 sp2_pitch_rate = short_period2['bPitchRate']
 
-ph_time = phugoid['time']-2600
+ph_time = phugoid['time']-phugoid['time'].iloc[0]
 ph_pitch_rate = phugoid['bPitchRate']
 
-spiral_time = spiral['time']-2880
+spiral_time = spiral['time']-spiral['time'].iloc[0]
 spiral_roll_angle = spiral['Roll_angle']
 spiral_yaw_rate = spiral['bYawRate']
 
-dr_time = dutch_roll['time']-2798.5
+dr_time = dutch_roll['time']-dutch_roll['time'].iloc[0]
 dr_roll_rate = dutch_roll['bRollRate']
 dr_yaw_rate = dutch_roll['bYawRate']
 
-rd_time = roll_damping['time']-2854.6
+rd_time = roll_damping['time']-roll_damping['time'].iloc[0]
 rd_roll_rate = roll_damping['bRollRate']
 
-bound_sp1 = ([1,-20,-10],[3,0,0])
-bound_sp2 = ([-3,0,-10],[-1,20,0])
+bound_sp1 = (-1000,1000)
+bound_sp2 = (-1000,1000) 
 bound_ph = (-1000,1000)
 bound_spiral_yaw = ([3, -50, -10], [6, 0, 0])
 bound_spiral_roll = ([0, -150, -1], [150, 0, 0])
@@ -145,7 +166,7 @@ bound_dr_roll = (-1000,1000)
 bound_dr_yaw = (-1000,1000)
 bound_rd = ([2, -10, -10], [5, 0, 0])
 
-init_guess_sp1 = [2, -1.2, -4]
+init_guess_sp1 = []
 init_guess_sp2 = [-1.8, 1.2, -5.2]
 init_guess_ph = []
 init_guess_spiral_yaw = [4, -4.6, -0.11]
@@ -154,8 +175,8 @@ init_guess_dr_roll = []
 init_guess_dr_yaw = []
 init_guess_rd = [2.4, -1.4, -0.5]
 
-sp1_fit_par, pcov1 = curve_fit(overdamped, sp1_time, sp1_pitch_rate, p0 = init_guess_sp1, bounds = bound_sp1)
-sp2_fit_par, pcov2 = curve_fit(overdamped, sp2_time, sp2_pitch_rate, p0 = init_guess_sp2, bounds = bound_sp2)
+sp1_fit_par, pcov1 = curve_fit(underdamped, sp1_time, sp1_pitch_rate, bounds = bound_sp1)
+sp2_fit_par, pcov2 = curve_fit(underdamped, sp2_time, sp2_pitch_rate, bounds = bound_sp2)
 ph_fit_par, pcov3 = curve_fit(underdamped, ph_time, ph_pitch_rate, bounds = bound_ph)
 spiral_roll_fit_par, pcov4 = curve_fit(overdamped, spiral_time, spiral_roll_angle, p0 = init_guess_spiral_roll, bounds = bound_spiral_roll)
 spiral_yaw_fit_par, pcov5 = curve_fit(overdamped, spiral_time, spiral_yaw_rate, p0 = init_guess_spiral_yaw, bounds = bound_spiral_yaw)
@@ -188,8 +209,8 @@ t_spiral = np.linspace(0, spiral_time.iloc[-1], 1000)
 t_dr = np.linspace(0, dr_time.iloc[-1], 1000)
 t_rd = np.linspace(0, rd_time.iloc[-1], 1000)
 
-sp1_yfit = overdamped(t_sp1, sp1[0], sp1[1], sp1[2])
-sp2_yfit = overdamped(t_sp2, sp2[0], sp2[1], sp2[2])
+sp1_yfit = underdamped(t_sp1, sp1[0], sp1[1], sp1[2], sp1[3], sp1[4])
+sp2_yfit = underdamped(t_sp2, sp2[0], sp2[1], sp2[2], sp2[3], sp2[4])
 ph_yfit = underdamped(t_ph, ph[0], ph[1], ph[2], ph[3], ph[4])
 spiral_roll_yfit = overdamped(t_spiral, spiral_roll[0], spiral_roll[1], spiral_roll[2])
 spiral_yaw_yfit = overdamped(t_spiral, spiral_yaw[0], spiral_yaw[1], spiral_yaw[2])
@@ -197,36 +218,42 @@ dr_roll_yfit = underdamped(t_dr, dr_roll[0], dr_roll[1], dr_roll[2], dr_roll[3],
 dr_yaw_yfit = underdamped(t_dr, dr_yaw[0], dr_yaw[1], dr_yaw[2], dr_yaw[3], dr_yaw[4])
 rd_yfit = overdamped(t_rd, rd[0], rd[1], rd[2])
 
+Short_Period1 = ctt(sp1[0], sp1[1], sp1[2], sp1[3], sp1[4], 4, 2, sp1_time, sp1_pitch_rate)
+Short_Period2 = ctt(sp2[0], sp2[1], sp2[2], sp2[3], sp2[4], 5, 2, sp2_time, sp2_pitch_rate)
 Phugoid = ctt(ph[0], ph[1], ph[2], ph[3], ph[4], 160, 1.5, ph_time, ph_pitch_rate)
 Dutch_Roll_Roll = ctt(dr_roll[0], dr_roll[1], dr_roll[2], dr_roll[3], dr_roll[4], 12, 12.5, dr_time, dr_roll_rate)
 Dutch_Roll_Yaw = ctt(dr_yaw[0], dr_yaw[1], dr_yaw[2], dr_yaw[3], dr_yaw[4], 12, 17.5, dr_time, dr_yaw_rate)
 
-eigenvalue_short_period_1 = eigv_halftime(sp1[0], sp1[1], sp1[2], 0.8, 0)
-eigenvalue_short_period_2 = eigv_halftime(sp2[0], sp2[1], sp2[2], 1, 1)
-eigenvalue_phugoid = eigv_halftime(0, Phugoid[0], Phugoid[1], 350, 2)
-eigenvalue_spiral_roll = eigv_halftime(spiral_roll[0], spiral_roll[1], spiral_roll[2], 30, 3)
-eigenvalue_spiral_yaw = eigv_halftime(spiral_yaw[0], spiral_yaw[1], spiral_yaw[2], 30, 3)
-eigenvalue_dutch_roll_roll = eigv_halftime(0, Dutch_Roll_Roll[0], Dutch_Roll_Roll[1], 12, 4)
-eigenvalue_dutch_roll_yaw = eigv_halftime(0, Dutch_Roll_Yaw[0], Dutch_Roll_Yaw[1], 15, 4)
-eigenvalue_roll_damping = eigv_halftime(rd[0], rd[1], rd[2], 1.5, 5)
+eigenvalue_short_period_1 = eigv_halftime_sym(0, Short_Period1[0], Short_Period1[1], 4, 0)
+eigenvalue_short_period_2 = eigv_halftime_sym(0, Short_Period2[0], Short_Period2[1], 5, 1)
+eigenvalue_phugoid = eigv_halftime_sym(0, Phugoid[0], Phugoid[1], 350, 2)
+eigenvalue_spiral_roll = eigv_halftime_asym(spiral_roll[0], spiral_roll[1], spiral_roll[2], 30, 3)
+eigenvalue_spiral_yaw = eigv_halftime_asym(spiral_yaw[0], spiral_yaw[1], spiral_yaw[2], 30, 3)
+eigenvalue_dutch_roll_roll = eigv_halftime_asym(0, Dutch_Roll_Roll[0], Dutch_Roll_Roll[1], 15, 4)
+eigenvalue_dutch_roll_yaw = eigv_halftime_asym(0, Dutch_Roll_Yaw[0], Dutch_Roll_Yaw[1], 15, 4)
+eigenvalue_roll_damping = eigv_halftime_asym(rd[0], rd[1], rd[2], 1.5, 5)
 
-ev_period_phugoid = eigv_period(ph[4], 2)
-ev_period_dr_roll = eigv_period(dr_roll[4], 4)
-ev_period_dr_yaw = eigv_period(dr_yaw[4], 4)
+ev_period_sp1 = eigv_period_sym(sp1[4], 0)
+ev_period_sp2 = eigv_period_sym(sp2[4], 1)
+ev_period_phugoid = eigv_period_sym(ph[4], 2)
+ev_period_dr_roll = eigv_period_asym(dr_roll[4], 4)
+ev_period_dr_yaw = eigv_period_asym(dr_yaw[4], 4)
 
-motiondata = [['Short Period 1']  + eigenvalue_short_period_1,
-              ['Short Period 2']  + eigenvalue_short_period_2,
-              ['Phugoid']         + eigenvalue_phugoid + ev_period_phugoid,
+motiondata = [['Short Period 1']  + eigenvalue_short_period_1  + ev_period_sp1,
+              ['Short Period 2']  + eigenvalue_short_period_2  + ev_period_sp2,
+              ['Phugoid']         + eigenvalue_phugoid         + ev_period_phugoid,
               ['Spiral Roll']     + eigenvalue_spiral_roll,
               ['Spiral Yaw']      + eigenvalue_spiral_yaw,
               ['Dutch Roll Roll'] + eigenvalue_dutch_roll_roll + ev_period_dr_roll,
-              ['Dutch Roll Yaw']  + eigenvalue_dutch_roll_yaw + ev_period_dr_yaw,
+              ['Dutch Roll Yaw']  + eigenvalue_dutch_roll_yaw  + ev_period_dr_yaw,
               ['Roll Damping']    + eigenvalue_roll_damping]
 
 dataframe = pd.DataFrame(motiondata, columns = ['Type of Motion', 'Half Time', 'Eigenvalue Real', 'Period', 'Eigenvalue Imaginary'])
 
 pd.DataFrame.to_excel(dataframe, 'eigenvalues_of_all_motions.xlsx')
 
+y_decay_shortperiod1 = overdamped(t_sp1, sp1[0], Short_Period1[0], Short_Period1[1])
+y_decay_shortperiod2 = overdamped(t_sp2, sp2[0], Short_Period2[0], Short_Period2[1])
 y_decay_phugoid = overdamped(t_ph, ph[0], Phugoid[0], Phugoid[1])
 y_decay_dr_roll = overdamped(t_dr, dr_roll[0], Dutch_Roll_Roll[0], Dutch_Roll_Roll[1])
 y_decay_dr_yaw = overdamped(t_dr, dr_yaw[0], Dutch_Roll_Yaw[0], Dutch_Roll_Yaw[1])
@@ -234,6 +261,7 @@ y_decay_dr_yaw = overdamped(t_dr, dr_yaw[0], Dutch_Roll_Yaw[0], Dutch_Roll_Yaw[1
 #Short period 1
 plt.scatter(sp1_time, sp1_pitch_rate, label='Data')
 plt.plot(t_sp1 ,sp1_yfit, 'r-', linewidth=0.75, label = 'Fitted Curve')
+plt.plot(t_sp1, y_decay_shortperiod1, 'g-.', linewidth=0.75, label = 'Exponential Decay')
 plt.title('Pitch rate during first short period motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Pitch Rate [deg/sec]')
@@ -243,6 +271,7 @@ plt.show()
 #Short period 2
 plt.scatter(sp2_time, sp2_pitch_rate, label='Data')
 plt.plot(t_sp2 ,sp2_yfit, 'r-', linewidth=0.75, label = 'Fitted Curve')
+plt.plot(t_sp2, y_decay_shortperiod2, 'g-.', linewidth=0.75, label = 'Exponential Decay')
 plt.title('Pitch rate during second short period motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Pitch Rate [deg/sec]')

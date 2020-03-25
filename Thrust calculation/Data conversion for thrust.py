@@ -24,13 +24,13 @@ ffl = np.asarray(Data['FFL_lbs/hr']*0.45359237/3600)
 ffr = np.asarray(Data['FFR_lbs/hr']*0.45359237/3600)
 F_used = np.asarray(Data['F_used']*0.45359237)
 T_tot_K = np.asarray(Data['TAT_C'] + K)
-d_T = T_tot_K-(T_0 + alpha*altitude_m)
 
 Time = []
 th0 = []
 m = []
 v_true = []
 v_eas = []
+T_static = []
 
 for i in range(len(Data)):
     lst = Data['time'][i].split(':')
@@ -53,6 +53,11 @@ for i in range(len(Data)):
     m.append(M)
     v_true.append(V_true)
     v_eas.append(V_eas)
+    T_static.append(T)
+    
+T_stat = sum(T_static)/len(T_static)
+d_T = T_stat-(T_0 + alpha*altitude_m)
+print(T_stat)
 
 row_1 = str(altitude_m[0]) + ' ' + str(m[0]) + ' ' + str(d_T[0]) + ' ' + str(ffl[0]) + ' ' + str(ffr[0])
 row_2 = str(altitude_m[1]) + ' ' + str(m[1]) + ' ' + str(d_T[1]) + ' ' + str(ffl[1]) + ' ' + str(ffr[1])

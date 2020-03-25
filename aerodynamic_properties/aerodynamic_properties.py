@@ -42,15 +42,23 @@ Temp0  = 288.15          # temperature at sea level in ISA [K]
 R      = 287.05          # specific gas constant [m^2/sec^2K]
 g      = 9.81            # [m/sec^2] (gravity constant)
 
+mu_0 = 1.716E-5
+T_static   = 262.7861280356529
+T_0 = 273.15
+suth = 110.4
+
 Cl = []
 Cd = []
 alpha = []
+Reynolds = []
+Mach = []
 
 for i in range(len(Data)):
     hp0    = Data['Altitude_m'][i] # pressure altitude in the stationary flight condition [m]
     V0     = Data['V_true'][i]     # true airspeed in the stationary flight condition [m/sec]
     alpha0 = Data['AOA'][i]        # angle of attack in the stationary flight condition [rad]
     th0    = Data['AOA'][i]            # pitch angle in the stationary flight condition [rad]
+    M      = Data['mach'][i]
 
     # Aircraft mass
     m      = m_empty + sum(m_pax['mass']) + sum(m_fuel['mass'])*0.45359237 - Data['Fuel_used'][i] # mass [kg]
@@ -59,6 +67,11 @@ for i in range(len(Data)):
     rho    = rho0 * ((1+(lmda * hp0 / Temp0)))**(-((g / (lmda*R)) + 1))
     W      = m * g            # [N]       (aircraft weight)
     D      = thrust[i]
+    
+    mu = mu_0*(T_static/T_0)**(3/2)*((T_0+suth)/(T_static+suth))
+    Re = (rho*V0*c)/mu
+    Reynolds.append(Re)
+    Mach.append(M)
     
     # Constant values concerning aircraft inertia
     
@@ -76,6 +89,9 @@ for i in range(len(Data)):
     Cl.append(CL)
     Cd.append(CD)
     alpha.append(alpha0)
+
+print(Reynolds)
+print(Mach)
 
 X = pd.DataFrame(alpha).values.reshape(-1,1)
 Y = pd.DataFrame(Cl).values.reshape(-1,1)
@@ -114,6 +130,56 @@ V = pd.DataFrame(Cd).values.reshape(-1,1)
 linear_regressor = LinearRegression()
 linear_regressor.fit(U, V)
 V_pred = linear_regressor.predict(U)
+
+
+
+ax1 = plt.subplot(221)
+plt.scatter(alpha, Cl)
+plt.plot(alpha, Y_pred, color='red', linewidth = 0.5)
+plt.title('$Cl-\u03B1$', fontsize = 10)
+plt.ylabel('Lift coeficient $Cl$ [$-$]', fontsize = 7)
+plt.xlabel('Angle of attack $\u03B1$ [$rad$]', fontsize = 7)
+plt.setp(ax1.get_xticklabels(), fontsize = 7)
+plt.setp(ax1.get_yticklabels(), fontsize = 7)
+plt.grid(True)
+
+ax2 = plt.subplot(222)
+plt.scatter(alpha, Cd)
+plt.title('$Cd-\u03B1$', fontsize = 10)
+plt.ylabel('Drag coeficient $Cd$ [$-$]', fontsize = 7)
+plt.xlabel('Angle of attack $\u03B1$ [$deg$]', fontsize = 7)
+ax2.yaxis.tick_right()
+ax2.yaxis.set_label_position("right")
+plt.setp(ax2.get_xticklabels(), fontsize = 7)
+plt.setp(ax2.get_yticklabels(), fontsize = 7)
+plt.grid(True)
+
+ax3 = plt.subplot(223)
+plt.scatter(Cd, Cl)
+plt.title('$Cl-Cd$', fontsize = 10)
+plt.ylabel('Lift coeficient $Cl$ [$-$]', fontsize = 7)
+plt.xlabel('Drag coeficient $Cd$ [$-$]', fontsize = 7)
+plt.setp(ax3.get_xticklabels(), fontsize = 7)
+plt.setp(ax3.get_yticklabels(), fontsize = 7)
+plt.grid(True)
+
+ax4 = plt.subplot(224)
+plt.scatter(Cl_check, Cd)
+plt.plot(Cl_check, V_pred, color='red', linewidth = 0.5)
+plt.title('$Cl^2-Cd$', fontsize = 10)
+plt.ylabel('Drag coefficient $Cd$ [$-$]', fontsize = 7)
+plt.xlabel('Lift coefficient squared $Cl^2$ [$-$]', fontsize = 7)
+ax4.yaxis.tick_right()
+ax4.yaxis.set_label_position("right")
+plt.setp(ax4.get_xticklabels(), fontsize = 7)
+plt.setp(ax4.get_yticklabels(), fontsize = 7)
+plt.grid(True)
+
+plt.suptitle('First stationary measurements', fontsize=16)
+
+plt.subplots_adjust(wspace=0.1, hspace=0.5)
+plt.savefig('../reading flight data/Graphs/stationary_measurements.png', dpi = 300)
+plt.show()
 
 CD0 = linear_regressor.intercept_                  # Zero lift drag coefficient [ ]
 e = 1/(linear_regressor.coef_[0]*pi*A)             # Oswald factor [ ]
