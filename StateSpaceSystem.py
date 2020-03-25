@@ -17,15 +17,15 @@ class State_Space:
     def get_eig(self):
         return np.linalg.eig(self.A)
 
-    def get_response(self,u):
+    def get_response(self,u,t_):
         ss = self.get_ss()
-        t = np.arange(len(u))
-        t,resp,xevo = np.signal.lsim((self.A,self.B,self.C,self.D),u,t)
+        t,resp,xevo = np.signal.lsim((self.A,self.B,self.C,self.D),u,t_,self.x0)
         return t,resp
 
-    def plot_resp(self,u):
+    def plot_resp(self,u,t_):
         fig = plt.figure()
-        t,resp= self.get_response(u)
+        t,resp= self.get_response(u,t_)
+        print(resp)
         plt.plot(t,resp)
         plt.show()
 
