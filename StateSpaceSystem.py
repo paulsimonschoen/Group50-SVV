@@ -1,4 +1,4 @@
-import control.matlab as ml
+import control as ml
 import matplotlib.pyplot as plt
 import scipy as np
 
@@ -12,20 +12,21 @@ class State_Space:
         self.x0 = x0
 
     def get_ss(self):
-        return ml.ss(A,B,C,D)
+        return ml.StateSpace(self.A,self.B,self.C,self.D)
 
     def get_eig(self):
-        return np.eig(A)
+        return np.linalg.eig(self.A)
 
     def get_response(self,u):
         ss = self.get_ss()
-        t = np.arange(u)
-        return ml.lsim(ss,u,t,self.x0),t
+        t = np.arange(len(u))
+        t,resp,xevo = np.signal.lsim((self.A,self.B,self.C,self.D),u,t)
+        return t,resp
 
     def plot_resp(self,u):
         fig = plt.figure()
-        resp,t = self.get_response(u)
-        plt.plot(resp,t)
+        t,resp= self.get_response(u)
+        plt.plot(t,resp)
         plt.show()
 
 
