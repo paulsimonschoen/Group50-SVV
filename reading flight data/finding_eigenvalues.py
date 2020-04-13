@@ -91,7 +91,7 @@ def ctt(a, c1, c2, lmda1, lmda2, length, amp, data_time, data_rate):
     return [p, q]
 
 def eigv_halftime_sym(a, b, c, l, motion):
-    t = np.linspace(0,l,100000)
+    t = np.linspace(0,l,1000000)
     t_half = []
     
     y = a + b * np.e**(c * t)
@@ -102,11 +102,11 @@ def eigv_halftime_sym(a, b, c, l, motion):
         if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
             t_half.append(t[i]-t[0])
             
-    lmda1 = (log(0.5)/avg(t_half)) * MAC/V_true[motion]
+    lmda1 = (log(0.5)/avg(t_half)) #* MAC/V_true[motion]
     return [avg(t_half), lmda1]
 
 def eigv_halftime_asym(a, b, c, l, motion):
-    t = np.linspace(0,l,100000)
+    t = np.linspace(0,l,1000000)
     t_half = []
     
     y = a + b * np.e**(c * t)
@@ -117,17 +117,17 @@ def eigv_halftime_asym(a, b, c, l, motion):
         if initial_amp < 2*amp+0.001 and initial_amp > 2*amp-0.001:
             t_half.append(t[i]-t[0])
             
-    lmda1 = (log(0.5)/avg(t_half)) * span/V_true[motion]
+    lmda1 = (log(0.5)/avg(t_half)) #* span/V_true[motion]
     return [avg(t_half), lmda1]
 
 def eigv_period_sym(lmda2, motion):
     P = (2*pi)/abs(lmda2)
-    mu = ((2*pi)/P) * MAC/V_true[motion]
+    mu = ((2*pi)/P) #* MAC/V_true[motion]
     return [P, mu]
 
 def eigv_period_asym(lmda2, motion):
     P = (2*pi)/abs(lmda2)
-    mu = ((2*pi)/P) * span/V_true[motion]
+    mu = ((2*pi)/P) #* span/V_true[motion]
     return [P, mu]
 
 short_period = pd.read_excel('short_period.xlsx')
@@ -136,6 +136,24 @@ phugoid = pd.read_excel('phugoid.xlsx')
 spiral = pd.read_excel('spiral.xlsx')
 dutch_roll = pd.read_excel('dutch_roll.xlsx')
 roll_damping = pd.read_excel('roll_damping.xlsx')
+
+short_period.drop(short_period.head(9).index,inplace=True)
+short_period.drop(short_period.tail(12).index,inplace=True)
+
+short_period2.drop(short_period2.head(12).index,inplace=True)
+short_period2.drop(short_period2.tail(8).index,inplace=True)
+
+phugoid.drop(phugoid.head(260).index,inplace=True)
+phugoid.drop(phugoid.tail(0).index,inplace=True)
+
+spiral.drop(spiral.head(0).index,inplace=True)
+spiral.drop(spiral.tail(0).index,inplace=True)
+
+dutch_roll.drop(dutch_roll.head(50).index,inplace=True)
+dutch_roll.drop(dutch_roll.tail(0).index,inplace=True)
+
+roll_damping.drop(roll_damping.head(23).index,inplace=True)
+roll_damping.drop(roll_damping.tail(63).index,inplace=True)
 
 sp1_time = short_period['time']-short_period['time'].iloc[0]
 sp1_pitch_rate = short_period['bPitchRate']
@@ -227,8 +245,8 @@ Dutch_Roll_Yaw = ctt(dr_yaw[0], dr_yaw[1], dr_yaw[2], dr_yaw[3], dr_yaw[4], 12, 
 eigenvalue_short_period_1 = eigv_halftime_sym(0, Short_Period1[0], Short_Period1[1], 4, 0)
 eigenvalue_short_period_2 = eigv_halftime_sym(0, Short_Period2[0], Short_Period2[1], 5, 1)
 eigenvalue_phugoid = eigv_halftime_sym(0, Phugoid[0], Phugoid[1], 350, 2)
-eigenvalue_spiral_roll = eigv_halftime_asym(spiral_roll[0], spiral_roll[1], spiral_roll[2], 30, 3)
-eigenvalue_spiral_yaw = eigv_halftime_asym(spiral_yaw[0], spiral_yaw[1], spiral_yaw[2], 30, 3)
+eigenvalue_spiral_roll = eigv_halftime_asym(spiral_roll[0], spiral_roll[1], spiral_roll[2], 100, 3)
+eigenvalue_spiral_yaw = eigv_halftime_asym(spiral_yaw[0], spiral_yaw[1], spiral_yaw[2], 100, 3)
 eigenvalue_dutch_roll_roll = eigv_halftime_asym(0, Dutch_Roll_Roll[0], Dutch_Roll_Roll[1], 15, 4)
 eigenvalue_dutch_roll_yaw = eigv_halftime_asym(0, Dutch_Roll_Yaw[0], Dutch_Roll_Yaw[1], 15, 4)
 eigenvalue_roll_damping = eigv_halftime_asym(rd[0], rd[1], rd[2], 1.5, 5)
@@ -266,6 +284,7 @@ plt.title('Pitch rate during first short period motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Pitch Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/short_period1_eigenvalue.png', dpi = 300)
 plt.show()
 
 #Short period 2
@@ -276,6 +295,7 @@ plt.title('Pitch rate during second short period motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Pitch Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/short_period2_eigenvalue.png', dpi = 300)
 plt.show()
 
 #Phugoid
@@ -286,6 +306,7 @@ plt.title('Pitch rate during phugoid motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Pitch Rate [deg/sec]')
 plt.legend(loc = 'lower right')
+plt.savefig('Graphs/phugoid_eigenvalue.png', dpi = 300)
 plt.show()
 
 #Spiral
@@ -295,6 +316,7 @@ plt.title('Roll angle during spiral motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Roll Angle [deg]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/spiral_rollangle_eigenvalue.png', dpi = 300)
 plt.show()
 
 plt.scatter(spiral_time, spiral_yaw_rate, s=0.6, label='Data')
@@ -303,6 +325,7 @@ plt.title('Yaw rate during spiral motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Yaw Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/spiral_yawrate_eigenvalue.png', dpi = 300)
 plt.show()
 
 #Dutch roll
@@ -313,6 +336,7 @@ plt.title('Roll rate during Dutch roll motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Roll Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/dutchroll_rollrate_eigenvalue.png', dpi = 300)
 plt.show()
 
 plt.scatter(dr_time, dr_yaw_rate, s=1, label='Data')
@@ -322,6 +346,7 @@ plt.title('Yaw rate during Dutch roll motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Yaw Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/dutchroll_yawrate_eigenvalue.png', dpi = 300)
 plt.show()
 
 #Roll damping
@@ -331,6 +356,7 @@ plt.title('Roll rate during a-periodic roll motion')
 plt.xlabel('Time [sec]')
 plt.ylabel('Roll Rate [deg/sec]')
 plt.legend(loc = 'best')
+plt.savefig('Graphs/rolldamping_eigenvalue.png', dpi = 300)
 plt.show()
 
 print('done')

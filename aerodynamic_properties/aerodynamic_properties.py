@@ -52,6 +52,7 @@ Cd = []
 alpha = []
 Reynolds = []
 Mach = []
+Rho = []
 
 for i in range(len(Data)):
     hp0    = Data['Altitude_m'][i] # pressure altitude in the stationary flight condition [m]
@@ -72,6 +73,7 @@ for i in range(len(Data)):
     Re = (rho*V0*c)/mu
     Reynolds.append(Re)
     Mach.append(M)
+    Rho.append(rho)
     
     # Constant values concerning aircraft inertia
     
@@ -89,9 +91,6 @@ for i in range(len(Data)):
     Cl.append(CL)
     Cd.append(CD)
     alpha.append(alpha0)
-
-print(Reynolds)
-print(Mach)
 
 X = pd.DataFrame(alpha).values.reshape(-1,1)
 Y = pd.DataFrame(Cl).values.reshape(-1,1)
@@ -183,7 +182,7 @@ plt.show()
 
 CD0 = linear_regressor.intercept_                  # Zero lift drag coefficient [ ]
 e = 1/(linear_regressor.coef_[0]*pi*A)             # Oswald factor [ ]
-
+print(e)
 '''    
 # Longitudinal stability
 Cma    =             # longitudinal stabilty [ ]
