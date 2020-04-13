@@ -66,6 +66,8 @@ row_4 = str(altitude_m[3]) + ' ' + str(m[3]) + ' ' + str(d_T[3]) + ' ' + str(ffl
 row_5 = str(altitude_m[4]) + ' ' + str(m[4]) + ' ' + str(d_T[4]) + ' ' + str(ffl[4]) + ' ' + str(ffr[4])
 row_6 = str(altitude_m[5]) + ' ' + str(m[5]) + ' ' + str(d_T[5]) + ' ' + str(ffl[5]) + ' ' + str(ffr[5])
 
+print(row_1)
+
 f = open('matlab.dat', 'w')
 f.write(row_1 + '\n' + row_2 + '\n' + row_3 + '\n' + row_4 + '\n' + row_5 + '\n' + row_6)
 
